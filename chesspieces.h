@@ -23,4 +23,6 @@ extern void set_black(char *p);
 extern void set_white(char *p);
 extern void set_free(char *p);
 
+extern void print_chesspiece(char p, FILE *f);
+
 #endif

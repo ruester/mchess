@@ -1,14 +1,8 @@
-#include <stdio.h>
-
-#include "chessboard.h"
+#include "game.h"
 
 int main(int argc, char *argv[])
 {
-    struct chessboard *c;
-    
-    c = new_chessboard();
-    
-    printf("%d\n", c->board[5][5]);
+    play_chess();
     
     return 0;
 }

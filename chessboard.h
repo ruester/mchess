@@ -6,5 +6,6 @@ struct chessboard {
 };
 
 extern struct chessboard *new_chessboard(void);
+extern void print_chessboard(struct chessboard *c, FILE *f);
 
 #endif

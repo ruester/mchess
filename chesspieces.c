@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "chesspieces.h"
 
 #define PAWN   (1 << 0)
@@ -102,5 +104,43 @@ void set_white(char *p)
 
 void set_free(char *p)
 {
-    *p = FREE;
+    *p = (char) FREE;
+}
+
+void print_chesspiece(char p, FILE *f)
+{
+    char output, white;
+    
+    output = '?';
+    
+    if (is_white(p))
+        white = 1;
+    else
+        white = 0;
+    
+    if (is_king(p))
+        output = 'k';
+    
+    if (is_queen(p))
+        output = 'q';
+    
+    if (is_rook(p))
+        output = 'r';
+    
+    if (is_bishop(p))
+        output = 'b';
+    
+    if (is_knight(p))
+        output = 'n';
+    
+    if (is_pawn(p))
+        output = 'p';
+    
+    if (white)
+        output -= 32;
+    
+    if (is_free(p))
+        output = ' ';
+    
+    fprintf(f, "%c", output);
 }

@@ -2,7 +2,7 @@
 CC	= gcc
 CFLAGS	= -Wall -g -pedantic
 LDFLAGS = -lm
-OBJECTS = main.o chessboard.o chesspieces.o
+OBJECTS = main.o chessboard.o chesspieces.o game.o
 
 #PROJECT
 PROJECT  = mchess
