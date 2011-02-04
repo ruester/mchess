@@ -109,35 +109,35 @@ void set_free(char *p)
 
 void print_chesspiece(char p, FILE *f)
 {
-    char output, white;
+    char output, black;
     
     output = '?';
     
-    if (is_white(p))
-        white = 1;
+    if (is_black(p))
+        black = 1;
     else
-        white = 0;
+        black = 0;
     
     if (is_king(p))
-        output = 'k';
+        output = 'K';
     
     if (is_queen(p))
-        output = 'q';
+        output = 'Q';
     
     if (is_rook(p))
-        output = 'r';
+        output = 'R';
     
     if (is_bishop(p))
-        output = 'b';
+        output = 'B';
     
     if (is_knight(p))
-        output = 'n';
+        output = 'N';
     
     if (is_pawn(p))
-        output = 'p';
+        output = 'P';
     
-    if (white)
-        output -= 32;
+    if (black)
+        output += 'a' - 'A';
     
     if (is_free(p))
         output = ' ';
