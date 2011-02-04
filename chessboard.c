@@ -62,8 +62,6 @@ struct chessboard *new_chessboard(void)
     
     initialize_chessboard(c);
     
-    print_chessboard(c, stdout);
-    
     return c;
 }
 
