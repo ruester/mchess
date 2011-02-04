@@ -71,14 +71,19 @@ void print_chessboard(struct chessboard *c, FILE *f)
 {
     int x, y;
     
+    fprintf(f, "\n   A B C D E F G H\n");
+    
     for (y = 0; y < 8; y++) {
         for (x = 0; x < 8; x++) {
+            if (x == 0)
+                fprintf(f, "%2d ", 8 - y);
             print_chesspiece(c->board[y][x], f);
             if (x != 7)
-                printf(" ");
+                fprintf(f, " ");
         }
         
-        printf("\n");
+        fprintf(f, "\n");
     }
     
+    fprintf(f, "\n");
 }
