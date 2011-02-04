@@ -7,26 +7,26 @@
 static void initialize_chessboard(struct chessboard *c)
 {
     int x, y;
-    
+
     /* color */
     for (y = 0; y < 2; y++)
         for (x = 0; x < 8; x++)
             set_black(&(c->board[y][x]));
-    
+
     /* kings */
     set_king(&(c->board[0][4]));
     set_king(&(c->board[7][4]));
-    
+
     /* queens */
     set_queen(&(c->board[0][3]));
     set_queen(&(c->board[7][3]));
-    
+
     /* rooks */
     set_rook(&(c->board[0][0]));
     set_rook(&(c->board[0][7]));
     set_rook(&(c->board[7][0]));
     set_rook(&(c->board[7][7]));
-    
+
     /* bishops */
     set_bishop(&(c->board[0][2]));
     set_bishop(&(c->board[0][5]));
@@ -44,7 +44,7 @@ static void initialize_chessboard(struct chessboard *c)
         set_pawn(&(c->board[1][x]));
         set_pawn(&(c->board[6][x]));
     }
-    
+
     /* free fields */
     for (y = 2; y < 6; y++)
         for (x = 0; x < 8; x++)
@@ -54,23 +54,23 @@ static void initialize_chessboard(struct chessboard *c)
 struct chessboard *new_chessboard(void)
 {
     struct chessboard *c;
-    
+
     if ((c = calloc(1, sizeof(struct chessboard))) == NULL) {
         perror("calloc");
         exit(EXIT_FAILURE);
     }
-    
+
     initialize_chessboard(c);
-    
+
     return c;
 }
 
-void print_chessboard(struct chessboard *c, FILE *f)
+void print_chessboard(struct chessboard *c, FILE * f)
 {
     int x, y;
-    
+
     fprintf(f, "\n   A B C D E F G H\n");
-    
+
     for (y = 0; y < 8; y++) {
         for (x = 0; x < 8; x++) {
             if (x == 0)
@@ -79,9 +79,9 @@ void print_chessboard(struct chessboard *c, FILE *f)
             if (x != 7)
                 fprintf(f, " ");
         }
-        
+
         fprintf(f, "\n");
     }
-    
+
     fprintf(f, "\n");
 }
