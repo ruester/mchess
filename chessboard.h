@@ -7,5 +7,6 @@ struct chessboard {
 
 extern struct chessboard *new_chessboard(void);
 extern void print_chessboard(struct chessboard *c, FILE * f);
+extern char is_checkmate(struct chessboard *c);
 
 #endif

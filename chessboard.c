@@ -69,7 +69,7 @@ void print_chessboard(struct chessboard *c, FILE * f)
 {
     int x, y;
 
-    fprintf(f, "\n   A B C D E F G H\n");
+    fprintf(f, "\n   a b c d e f g h\n");
 
     for (y = 0; y < 8; y++) {
         for (x = 0; x < 8; x++) {
@@ -84,4 +84,9 @@ void print_chessboard(struct chessboard *c, FILE * f)
     }
 
     fprintf(f, "\n");
+}
+
+char is_checkmate(struct chessboard *c)
+{
+    return 1;
 }
