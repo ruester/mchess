@@ -114,6 +114,7 @@ static struct coordinate *get_possible_moves(struct chessboard *c, struct coordi
 static char is_valid_move(struct chessboard *c, struct coordinate from, struct coordinate to, char color)
 {
     struct coordinate *moves;
+    int i;
     
     /* check from and to */
     if (from.x < 0 || from.x > 7 || from.y < 0 || from.y > 7
@@ -157,8 +158,24 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
         fprintf(stderr, "\n");
         return 0;
     }
+
+    printf("chess piece on field ");
+    print_coordinate(from, stdout);
+    printf(" can go to:\n");
+
+    for(i = 0; moves[i].x != -1 && moves[i].y != -1; i++) {
+        print_coordinate(moves[i], stdout);
+        printf("\n");
+        /*
+        if (moves[i].x == to.x && moves[i].y == to.y) {
+            free(moves);
+            return 1;
+        }
+        */
+    }
     
-    return 1;
+    free(moves);
+    return 0;
 }
 
 static void print_help()
@@ -167,7 +184,7 @@ static void print_help()
            "* mChess v0.1 *\n"
            "***************\n"
            "\n"
-           "~ enter coordinates to move your chess pieces\n"
+           "~ enter coordinates to move a chess piece (e.g. 'b1 c3')\n"
            "~ enter 'q' to exit the game\n"
            "\n");
     

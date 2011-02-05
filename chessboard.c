@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "chesspieces.h"
 #include "chessboard.h"
@@ -63,6 +64,17 @@ struct chessboard *new_chessboard(void)
     initialize_chessboard(c);
 
     return c;
+}
+
+struct chessboard *copy_of_chessboard(struct chessboard *c)
+{
+    struct chessboard *copy;
+    
+    copy = new_chessboard();
+    
+    memcpy(copy, c, sizeof(struct chessboard));
+    
+    return copy;
 }
 
 void print_chessboard(struct chessboard *c, FILE * f)
