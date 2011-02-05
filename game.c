@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "chessboard.h"
 #include "chesspieces.h"
@@ -10,13 +11,75 @@
 #define WHITE 0
 #define BLACK 1
 
+#define DEBUG
+
+/* structures */
 struct coordinate {
     int x, y;
 };
 
+/* global variables */
+char enpassant_possible = 0;
+struct coordinate enpassant;
+char current_player = WHITE;
+
+/* prototypes */
+static void do_move(struct chessboard *c, struct coordinate from, struct coordinate to);
+static void print_coordinate(struct coordinate c, FILE *f);
+static struct coordinate to_coordinate(char s[LINE_MAX]);
+static char check_pin(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves_king(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves_queen(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves_rook(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves_bishop(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves_knight(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct coordinate p);
+static struct coordinate *get_possible_moves(struct chessboard *c, struct coordinate p);
+static char is_valid_move(struct chessboard *c, struct coordinate from, struct coordinate to, char color);
+static void do_move_ai();
+static char is_check(struct chessboard *c);
+static char is_checkmate(struct chessboard *c);
+static void print_help();
+
 static void do_move(struct chessboard *c, struct coordinate from, struct coordinate to)
 {
-
+    char type;
+    
+    type = get_chesspiece(c->board[from.y][from.x]);
+    
+    if (enpassant_possible) {
+        if (is_pawn(c->board[from.y][from.x]) && to.x == enpassant.x && to.y == enpassant.y) {
+            if (is_white(c->board[from.y][from.x]))
+                set_free(&(c->board[to.y + 1][to.x]));
+            else
+                set_free(&(c->board[to.y - 1][to.x]));
+        }
+        enpassant_possible = 0;
+        enpassant.x = -1;
+        enpassant.y = -1;
+    }
+    
+    if (is_pawn(c->board[from.y][from.x])
+        && (to.y - 2 == from.y || to.y + 2 == from.y)) {
+        enpassant_possible = 1;
+        enpassant.x = from.x;
+        enpassant.y = (from.y + to.y) / 2;
+    }
+    
+    if (current_player == WHITE)
+        current_player = BLACK;
+    else
+        current_player = WHITE;
+    
+    c->board[to.y][to.x] = c->board[from.y][from.x];
+    set_free(&(c->board[from.y][from.x]));
+    
+    if (type == PAWN
+        && (to.y == 0 || to.y == 7)) {
+        /* TODO: ask for promotion */
+        unset_pawn(&(c->board[to.y][to.x]));
+        set_queen(&(c->board[to.y][to.x]));
+    }
 }
 
 static void print_coordinate(struct coordinate c, FILE *f)
@@ -54,6 +117,21 @@ static struct coordinate to_coordinate(char s[LINE_MAX])
     return ret;
 }
 
+static char check_pin(struct chessboard *c, struct coordinate p)
+{
+    char temp, ret;
+    
+    temp = c->board[p.y][p.x];
+    
+    set_free(&(c->board[p.y][p.x]));
+    
+    ret = is_check(c);
+    
+    c->board[p.y][p.x] = temp;
+    
+    return ret;
+}
+
 static struct coordinate *get_possible_moves_king(struct chessboard *c, struct coordinate p)
 {
     return NULL;
@@ -81,7 +159,154 @@ static struct coordinate *get_possible_moves_knight(struct chessboard *c, struct
 
 static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct coordinate p)
 {
-    return NULL;
+    struct coordinate *moves;
+    int count;
+    
+    moves = NULL;
+    count = 0;
+    
+    if (check_pin(c, p))
+        return NULL;
+    
+    if (is_white(c->board[p.y][p.x])) {
+        if (is_free(c->board[p.y - 1][p.x])) {
+            count++;
+            
+            if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            
+            moves[count - 1].x = p.x;
+            moves[count - 1].y = p.y - 1;
+            
+            if (p.y == 6 && is_free(c->board[4][p.x])) {
+                count++;
+                
+                if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+
+                moves[count - 1].x = p.x;
+                moves[count - 1].y = 4;
+            }
+        }
+        
+        if (enpassant_possible) {
+            if ((enpassant.x == p.x - 1 && enpassant.y == p.y - 1)
+                || (enpassant.x == p.x + 1 && enpassant.y == p.y - 1)) {
+                count++;
+                
+                if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+
+                moves[count - 1].x = enpassant.x;
+                moves[count - 1].y = enpassant.y;
+            }
+        }
+        
+        if (p.x > 0 && is_black(c->board[p.y - 1][p.x - 1])) {
+            count++;
+            
+            if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            
+            moves[count - 1].x = p.x - 1;
+            moves[count - 1].y = p.y - 1;
+        }
+        
+        if (p.x < 7 && is_black(c->board[p.y - 1][p.x + 1])) {
+            count++;
+            
+            if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            
+            moves[count - 1].x = p.x + 1;
+            moves[count - 1].y = p.y - 1;
+        }
+    } else {
+        if (is_free(c->board[p.y + 1][p.x])) {
+            count++;
+            
+            if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            
+            moves[count - 1].x = p.x;
+            moves[count - 1].y = p.y + 1;
+            
+            if (p.y == 1 && is_free(c->board[3][p.x])) {
+                count++;
+                
+                if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+
+                moves[count - 1].x = p.x;
+                moves[count - 1].y = 3;
+            }
+        }
+        
+        if (enpassant_possible) {
+            if ((enpassant.x == p.x - 1 && enpassant.y == p.y + 1)
+                || (enpassant.x == p.x + 1 && enpassant.y == p.y + 1)) {
+                count++;
+                
+                if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+
+                moves[count - 1].x = enpassant.x;
+                moves[count - 1].y = enpassant.y;
+            }
+        }
+        
+        if (p.x > 0 && is_white(c->board[p.y + 1][p.x - 1])) {
+            count++;
+            
+            if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            
+            moves[count - 1].x = p.x - 1;
+            moves[count - 1].y = p.y + 1;
+        }
+        
+        if (p.x < 7 && is_white(c->board[p.y + 1][p.x + 1])) {
+            count++;
+            
+            if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+                perror("realloc");
+                exit(EXIT_FAILURE);
+            }
+            
+            moves[count - 1].x = p.x + 1;
+            moves[count - 1].y = p.y + 1;
+        }
+    }
+    
+    count++;
+    
+    if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
+        perror("realloc");
+        exit(EXIT_FAILURE);
+    }
+    
+    moves[count - 1].x = -1;
+    moves[count - 1].y = -1;
+    
+    return moves;
 }
 
 static struct coordinate *get_possible_moves(struct chessboard *c, struct coordinate p)
@@ -163,18 +388,49 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
     print_coordinate(from, stdout);
     printf(" can go to:\n");
 
+#ifdef DEBUG
     for(i = 0; moves[i].x != -1 && moves[i].y != -1; i++) {
         print_coordinate(moves[i], stdout);
         printf("\n");
-        /*
+    }
+#endif
+
+    for(i = 0; moves[i].x != -1 && moves[i].y != -1; i++) {
         if (moves[i].x == to.x && moves[i].y == to.y) {
             free(moves);
             return 1;
         }
-        */
     }
     
     free(moves);
+    
+    fprintf(stderr, "you cannot move the chess piece on field ");
+    print_coordinate(from, stderr);
+    fprintf(stderr, " to ");
+    print_coordinate(to, stderr);
+    fprintf(stderr, "\n");
+    return 0;
+}
+
+static void do_move_ai()
+{
+    /*
+    struct coordinate from, to;
+    
+    get_good_move(c, &from, &to);
+    be careful: is_valid_move(c, from, to, !!! BLACK !!!);
+    
+    do_move(c, from, to);
+    */
+}
+
+static char is_check(struct chessboard *c)
+{
+    return 0;
+}
+
+static char is_checkmate(struct chessboard *c)
+{
     return 0;
 }
 
@@ -197,6 +453,7 @@ void play_chess()
          input2[LINE_MAX] = {0};
     struct coordinate from, to;
 
+    srand(time(NULL));
     print_help();
 
     c = new_chessboard();
@@ -220,8 +477,9 @@ void play_chess()
 
             from = to_coordinate(input1);
             to   = to_coordinate(input2);
-        } while(!is_valid_move(c, from, to, WHITE));
+        } while(!is_valid_move(c, from, to, current_player));
         
         do_move(c, from, to);
+        do_move_ai(c);
     } while (!is_checkmate(c));
 }

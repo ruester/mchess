@@ -2,14 +2,7 @@
 
 #include "chesspieces.h"
 
-#define PAWN   (1 << 0)
-#define KNIGHT (1 << 1)
-#define BISHOP (1 << 2)
-#define ROOK   (1 << 3)
-#define QUEEN  (1 << 4)
-#define KING   (1 << 5)
-#define COLOR  (1 << 6)
-#define FREE   (1 << 7)
+#define DEBUG
 
 /* 
  * checking functions
@@ -51,6 +44,9 @@ char is_black(char p)
 
 char is_white(char p)
 {
+    if (is_free(p))
+        return 0;
+    
     return !is_black(p);
 }
 
@@ -107,6 +103,14 @@ void set_free(char *p)
     *p = (char) FREE;
 }
 
+/*
+ * unsetting functions
+ */
+void unset_pawn(char *p)
+{
+    *p &= ~PAWN;
+}
+
 void print_chesspiece(char p, FILE * f)
 {
     char output, black;
@@ -143,4 +147,31 @@ void print_chesspiece(char p, FILE * f)
         output = ' ';
 
     fprintf(f, "%c", output);
+}
+
+char get_chesspiece(char p)
+{
+    if (is_king(p))
+        return KING;
+    
+    if (is_queen(p))
+        return QUEEN;
+    
+    if (is_rook(p))
+        return ROOK;
+    
+    if (is_bishop(p))
+        return BISHOP;
+    
+    if (is_knight(p))
+        return KNIGHT;
+    
+    if (is_pawn(p))
+        return PAWN;
+    
+#ifdef DEBUG
+    fprintf(stderr, "get_chesspiece: wrong call\n");
+#endif
+    
+    return ERROR;
 }

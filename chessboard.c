@@ -97,8 +97,3 @@ void print_chessboard(struct chessboard *c, FILE * f)
 
     fprintf(f, "\n");
 }
-
-char is_checkmate(struct chessboard *c)
-{
-    return 1;
-}
