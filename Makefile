@@ -1,7 +1,7 @@
 #COMPILING AND LINKING
 CC	= gcc
 CFLAGS	= -Wall -g -pedantic
-LDFLAGS = -lm
+LDFLAGS =
 OBJECTS = main.o chessboard.o chesspieces.o game.o
 
 #PROJECT

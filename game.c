@@ -19,7 +19,7 @@ static void do_move(struct chessboard *c, struct coordinate from, struct coordin
 
 }
 
-static void print_coordinates(struct coordinate c, FILE *f)
+static void print_coordinate(struct coordinate c, FILE *f)
 {
     fprintf(f, "%c%d", c.x + 'a', 8 - c.y);
 }
@@ -54,8 +54,67 @@ static struct coordinate to_coordinate(char s[LINE_MAX])
     return ret;
 }
 
+static struct coordinate *get_possible_moves_king(struct chessboard *c, struct coordinate p)
+{
+    return NULL;
+}
+
+static struct coordinate *get_possible_moves_queen(struct chessboard *c, struct coordinate p)
+{
+    return NULL;
+}
+
+static struct coordinate *get_possible_moves_rook(struct chessboard *c, struct coordinate p)
+{
+    return NULL;
+}
+
+static struct coordinate *get_possible_moves_bishop(struct chessboard *c, struct coordinate p)
+{
+    return NULL;
+}
+
+static struct coordinate *get_possible_moves_knight(struct chessboard *c, struct coordinate p)
+{
+    return NULL;
+}
+
+static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct coordinate p)
+{
+    return NULL;
+}
+
+static struct coordinate *get_possible_moves(struct chessboard *c, struct coordinate p)
+{
+    char chesspiece;
+    
+    chesspiece = c->board[p.y][p.x];
+    
+    if (is_king(chesspiece))
+        return get_possible_moves_king(c, p);
+    
+    if (is_queen(chesspiece))
+        return get_possible_moves_queen(c, p);
+    
+    if (is_rook(chesspiece))
+        return get_possible_moves_rook(c, p);
+    
+    if (is_bishop(chesspiece))
+        return get_possible_moves_bishop(c, p);
+    
+    if (is_knight(chesspiece))
+        return get_possible_moves_knight(c, p);
+    
+    if (is_pawn(chesspiece))
+        return get_possible_moves_pawn(c, p);
+    
+    return NULL;
+}
+
 static char is_valid_move(struct chessboard *c, struct coordinate from, struct coordinate to, char color)
 {
+    struct coordinate *moves;
+    
     /* check from and to */
     if (from.x < 0 || from.x > 7 || from.y < 0 || from.y > 7
         || to.x < 0 || to.x > 7 || to.y < 0 || to.y > 7) {
@@ -66,7 +125,7 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
     /* check if there is a chess piece */
     if (is_free(c->board[from.y][from.x])) {
         fprintf(stderr, "there is no chess piece on field ");
-        print_coordinates(from, stderr);
+        print_coordinate(from, stderr);
         fprintf(stderr, "\n");
         return 0;
     }
@@ -74,7 +133,7 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
     /* check color */
     if (color == WHITE && is_black(c->board[from.y][from.x])) {
         fprintf(stderr, "the chess piece on field ");
-        print_coordinates(from, stderr);
+        print_coordinate(from, stderr);
         fprintf(stderr, " is not yours\n");
         return 0;
     }
@@ -84,10 +143,18 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
         if ((color == WHITE && is_white(c->board[to.y][to.x]))
             || (color == BLACK && is_black(c->board[to.y][to.x]))) {
             fprintf(stderr, "you cannot capture your own chess piece on field ");
-            print_coordinates(to, stderr);
+            print_coordinate(to, stderr);
             fprintf(stderr, "\n");
             return 0;
         }
+    }
+    
+    moves = get_possible_moves(c, from);
+    
+    if (moves == NULL) {
+        fprintf(stderr, "you cannot move the chess piece on field ");
+        print_coordinate(from, stderr);
+        fprintf(stderr, "\n");
     }
     
     return 1;
