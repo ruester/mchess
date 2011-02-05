@@ -155,6 +155,7 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
         fprintf(stderr, "you cannot move the chess piece on field ");
         print_coordinate(from, stderr);
         fprintf(stderr, "\n");
+        return 0;
     }
     
     return 1;
