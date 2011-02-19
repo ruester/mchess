@@ -41,6 +41,7 @@ static char is_check(struct chessboard *c);
 static char is_checkmate(struct chessboard *c);
 static void print_help();
 
+/* move a chess piece */
 static void do_move(struct chessboard *c, struct coordinate from, struct coordinate to)
 {
     char type;
@@ -87,6 +88,8 @@ static void print_coordinate(struct coordinate c, FILE *f)
     fprintf(f, "%c%d", c.x + 'a', 8 - c.y);
 }
 
+/* convert coordinates given by character + number (e. g. 'a1')
+ * to array coordinates */
 static struct coordinate to_coordinate(char s[LINE_MAX])
 {
     struct coordinate ret;
@@ -117,16 +120,21 @@ static struct coordinate to_coordinate(char s[LINE_MAX])
     return ret;
 }
 
+/* check if the chess piece on the coordinate is pinned */
 static char check_pin(struct chessboard *c, struct coordinate p)
 {
     char temp, ret;
     
+    /* memorize chess piece */
     temp = c->board[p.y][p.x];
     
+    /* take away the chess piece */
     set_free(&(c->board[p.y][p.x]));
     
+    /* check if there is a check situation */
     ret = is_check(c);
     
+    /* place memorized chess piece again */
     c->board[p.y][p.x] = temp;
     
     return ret;
@@ -309,6 +317,7 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
     return moves;
 }
 
+/* returns the possible moves of the chess piece on the coordinate */
 static struct coordinate *get_possible_moves(struct chessboard *c, struct coordinate p)
 {
     char chesspiece;
@@ -384,11 +393,11 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
         return 0;
     }
 
+#ifdef DEBUG
     printf("chess piece on field ");
     print_coordinate(from, stdout);
     printf(" can go to:\n");
 
-#ifdef DEBUG
     for(i = 0; moves[i].x != -1 && moves[i].y != -1; i++) {
         print_coordinate(moves[i], stdout);
         printf("\n");
