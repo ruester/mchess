@@ -19,9 +19,11 @@ struct coordinate {
 };
 
 /* global variables */
-char enpassant_possible = 0;
+char enpassant_possible = 0,
+     current_player = WHITE;
+char king_moved[2] = {0};
 struct coordinate enpassant;
-char current_player = WHITE;
+
 
 /* prototypes */
 static void do_move(struct chessboard *c, struct coordinate from, struct coordinate to);
@@ -60,26 +62,30 @@ static void do_move(struct chessboard *c, struct coordinate from, struct coordin
         enpassant.y = -1;
     }
     
-    if (is_pawn(c->board[from.y][from.x])
+    if (type == PAWN
         && (to.y - 2 == from.y || to.y + 2 == from.y)) {
         enpassant_possible = 1;
         enpassant.x = from.x;
         enpassant.y = (from.y + to.y) / 2;
     }
-    
+
+    if (type == KING)
+        king_moved[(int) current_player] = 1;
+
     if (current_player == WHITE)
         current_player = BLACK;
     else
         current_player = WHITE;
     
+    /* do the move */
     c->board[to.y][to.x] = c->board[from.y][from.x];
     set_free(&(c->board[from.y][from.x]));
     
     if (type == PAWN
         && (to.y == 0 || to.y == 7)) {
-        /* TODO: ask for promotion */
         unset_pawn(&(c->board[to.y][to.x]));
-        set_queen(&(c->board[to.y][to.x]));
+        /* TODO: ask for promotion */
+        set_queen(&(c->board[to.y][to.x])); /* !!! replace !!! */
     }
 }
 
@@ -172,9 +178,6 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
     
     moves = NULL;
     count = 0;
-    
-    if (check_pin(c, p))
-        return NULL;
     
     if (is_white(c->board[p.y][p.x])) {
         if (is_free(c->board[p.y - 1][p.x])) {
@@ -321,6 +324,9 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
 static struct coordinate *get_possible_moves(struct chessboard *c, struct coordinate p)
 {
     char chesspiece;
+    
+    if (check_pin(c, p))
+        return NULL;
     
     chesspiece = c->board[p.y][p.x];
     
