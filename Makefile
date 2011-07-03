@@ -21,13 +21,5 @@ $(PROJECT): $(OBJECTS)
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<
 
-package:
-	rm -rf $(TARFILE) $(TARDIR) $(TARFILE).bz2
-	mkdir $(TARDIR)
-	cp -f *.c *.h Makefile LICENSE $(TARDIR)
-	tar cf $(TARFILE) $(TARDIR)
-	bzip2 -z9 $(TARFILE)
-	rm -rf $(TARDIR)
-
 clean:
 	rm -f $(OBJECTS) $(PROJECT)

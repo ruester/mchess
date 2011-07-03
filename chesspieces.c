@@ -44,9 +44,6 @@ char is_black(char p)
 
 char is_white(char p)
 {
-    if (is_free(p))
-        return 0;
-    
     return !is_black(p);
 }
 
