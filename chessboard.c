@@ -56,7 +56,7 @@ struct chessboard *new_chessboard(void)
 {
     struct chessboard *c;
 
-    if ((c = calloc(1, sizeof(struct chessboard))) == NULL) {
+    if ((c = calloc(1, sizeof(*c))) == NULL) {
         perror("calloc");
         exit(EXIT_FAILURE);
     }
@@ -69,11 +69,11 @@ struct chessboard *new_chessboard(void)
 struct chessboard *copy_of_chessboard(struct chessboard *c)
 {
     struct chessboard *copy;
-    
+
     copy = new_chessboard();
-    
-    memcpy(copy, c, sizeof(struct chessboard));
-    
+
+    memcpy(copy, c, sizeof(*c));
+
     return copy;
 }
 

@@ -2,9 +2,7 @@
 
 #include "chesspieces.h"
 
-#define DEBUG
-
-/* 
+/*
  * checking functions
  */
 char is_king(char p)
@@ -150,25 +148,21 @@ char get_chesspiece(char p)
 {
     if (is_king(p))
         return KING;
-    
+
     if (is_queen(p))
         return QUEEN;
-    
+
     if (is_rook(p))
         return ROOK;
-    
+
     if (is_bishop(p))
         return BISHOP;
-    
+
     if (is_knight(p))
         return KNIGHT;
-    
+
     if (is_pawn(p))
         return PAWN;
-    
-#ifdef DEBUG
-    fprintf(stderr, "get_chesspiece: wrong call\n");
-#endif
-    
+
     return ERROR;
 }

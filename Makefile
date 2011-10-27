@@ -1,6 +1,6 @@
 #COMPILING AND LINKING
 CC	= gcc
-CFLAGS	= -Wall -g -pedantic
+CFLAGS	= -Wall -Wextra -Wunused -g
 LDFLAGS =
 OBJECTS = main.o chessboard.o chesspieces.o game.o
 
@@ -12,6 +12,8 @@ REVISION = 1
 #PACKAGE
 TARDIR  = $(PROJECT)-$(VERSION).$(REVISION)
 TARFILE = $(TARDIR).tar
+
+.PHONY: all clean
 
 all: $(PROJECT)
 

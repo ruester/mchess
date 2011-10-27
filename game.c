@@ -47,9 +47,9 @@ static void print_help();
 static void do_move(struct chessboard *c, struct coordinate from, struct coordinate to)
 {
     char type;
-    
+
     type = get_chesspiece(c->board[from.y][from.x]);
-    
+
     if (enpassant_possible) {
         if (is_pawn(c->board[from.y][from.x]) && to.x == enpassant.x && to.y == enpassant.y) {
             if (is_white(c->board[from.y][from.x]))
@@ -61,7 +61,7 @@ static void do_move(struct chessboard *c, struct coordinate from, struct coordin
         enpassant.x = -1;
         enpassant.y = -1;
     }
-    
+
     if (type == PAWN
         && (to.y - 2 == from.y || to.y + 2 == from.y)) {
         enpassant_possible = 1;
@@ -76,11 +76,11 @@ static void do_move(struct chessboard *c, struct coordinate from, struct coordin
         current_player = BLACK;
     else
         current_player = WHITE;
-    
+
     /* do the move */
     c->board[to.y][to.x] = c->board[from.y][from.x];
     set_free(&(c->board[from.y][from.x]));
-    
+
     if (type == PAWN
         && (to.y == 0 || to.y == 7)) {
         unset_pawn(&(c->board[to.y][to.x]));
@@ -99,30 +99,30 @@ static void print_coordinate(struct coordinate c, FILE *f)
 static struct coordinate to_coordinate(char s[LINE_MAX])
 {
     struct coordinate ret;
-    
+
     ret.x = -1;
     ret.y = -1;
-    
+
     /* get x value */
     if (s[0] >= 'A' && s[0] <= 'H')
         ret.x = s[0] - 'A';
-    
+
     if (s[0] >= 'a' && s[0] <= 'h')
         ret.x = s[0] -'a';
-    
+
     if (s[1] >= 'A' && s[1] <= 'H')
         ret.x = s[1] - 'A';
-    
+
     if (s[1] >= 'a' && s[1] <= 'h')
         ret.x = s[1] -'a';
-    
+
     /* get y value */
     if (s[0] >= '1' && s[0] <= '8')
         ret.y = 7 - s[0] + '1';
-    
+
     if (s[1] >= '1' && s[1] <= '8')
         ret.y = 7 - s[1] + '1';
-    
+
     return ret;
 }
 
@@ -130,19 +130,19 @@ static struct coordinate to_coordinate(char s[LINE_MAX])
 static char check_pin(struct chessboard *c, struct coordinate p)
 {
     char temp, ret;
-    
+
     /* memorize chess piece */
     temp = c->board[p.y][p.x];
-    
+
     /* take away the chess piece */
     set_free(&(c->board[p.y][p.x]));
-    
+
     /* check if there is a check situation */
     ret = is_check(c);
-    
+
     /* place memorized chess piece again */
     c->board[p.y][p.x] = temp;
-    
+
     return ret;
 }
 
@@ -175,25 +175,25 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
 {
     struct coordinate *moves;
     int count;
-    
+
     moves = NULL;
     count = 0;
-    
+
     if (is_white(c->board[p.y][p.x])) {
         if (is_free(c->board[p.y - 1][p.x])) {
             count++;
-            
+
             if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                 perror("realloc");
                 exit(EXIT_FAILURE);
             }
-            
+
             moves[count - 1].x = p.x;
             moves[count - 1].y = p.y - 1;
-            
+
             if (p.y == 6 && is_free(c->board[4][p.x])) {
                 count++;
-                
+
                 if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                     perror("realloc");
                     exit(EXIT_FAILURE);
@@ -203,12 +203,12 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
                 moves[count - 1].y = 4;
             }
         }
-        
+
         if (enpassant_possible) {
             if ((enpassant.x == p.x - 1 && enpassant.y == p.y - 1)
                 || (enpassant.x == p.x + 1 && enpassant.y == p.y - 1)) {
                 count++;
-                
+
                 if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                     perror("realloc");
                     exit(EXIT_FAILURE);
@@ -218,45 +218,45 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
                 moves[count - 1].y = enpassant.y;
             }
         }
-        
+
         if (p.x > 0 && is_black(c->board[p.y - 1][p.x - 1])) {
             count++;
-            
+
             if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                 perror("realloc");
                 exit(EXIT_FAILURE);
             }
-            
+
             moves[count - 1].x = p.x - 1;
             moves[count - 1].y = p.y - 1;
         }
-        
+
         if (p.x < 7 && is_black(c->board[p.y - 1][p.x + 1])) {
             count++;
-            
+
             if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                 perror("realloc");
                 exit(EXIT_FAILURE);
             }
-            
+
             moves[count - 1].x = p.x + 1;
             moves[count - 1].y = p.y - 1;
         }
     } else {
         if (is_free(c->board[p.y + 1][p.x])) {
             count++;
-            
+
             if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                 perror("realloc");
                 exit(EXIT_FAILURE);
             }
-            
+
             moves[count - 1].x = p.x;
             moves[count - 1].y = p.y + 1;
-            
+
             if (p.y == 1 && is_free(c->board[3][p.x])) {
                 count++;
-                
+
                 if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                     perror("realloc");
                     exit(EXIT_FAILURE);
@@ -266,12 +266,12 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
                 moves[count - 1].y = 3;
             }
         }
-        
+
         if (enpassant_possible) {
             if ((enpassant.x == p.x - 1 && enpassant.y == p.y + 1)
                 || (enpassant.x == p.x + 1 && enpassant.y == p.y + 1)) {
                 count++;
-                
+
                 if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                     perror("realloc");
                     exit(EXIT_FAILURE);
@@ -281,42 +281,42 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
                 moves[count - 1].y = enpassant.y;
             }
         }
-        
+
         if (p.x > 0 && is_white(c->board[p.y + 1][p.x - 1])) {
             count++;
-            
+
             if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                 perror("realloc");
                 exit(EXIT_FAILURE);
             }
-            
+
             moves[count - 1].x = p.x - 1;
             moves[count - 1].y = p.y + 1;
         }
-        
+
         if (p.x < 7 && is_white(c->board[p.y + 1][p.x + 1])) {
             count++;
-            
+
             if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
                 perror("realloc");
                 exit(EXIT_FAILURE);
             }
-            
+
             moves[count - 1].x = p.x + 1;
             moves[count - 1].y = p.y + 1;
         }
     }
-    
+
     count++;
-    
+
     if ((moves = realloc(moves, sizeof(struct coordinate) * count)) == NULL) {
         perror("realloc");
         exit(EXIT_FAILURE);
     }
-    
+
     moves[count - 1].x = -1;
     moves[count - 1].y = -1;
-    
+
     return moves;
 }
 
@@ -324,30 +324,30 @@ static struct coordinate *get_possible_moves_pawn(struct chessboard *c, struct c
 static struct coordinate *get_possible_moves(struct chessboard *c, struct coordinate p)
 {
     char chesspiece;
-    
+
     if (check_pin(c, p))
         return NULL;
-    
+
     chesspiece = c->board[p.y][p.x];
-    
+
     if (is_king(chesspiece))
         return get_possible_moves_king(c, p);
-    
+
     if (is_queen(chesspiece))
         return get_possible_moves_queen(c, p);
-    
+
     if (is_rook(chesspiece))
         return get_possible_moves_rook(c, p);
-    
+
     if (is_bishop(chesspiece))
         return get_possible_moves_bishop(c, p);
-    
+
     if (is_knight(chesspiece))
         return get_possible_moves_knight(c, p);
-    
+
     if (is_pawn(chesspiece))
         return get_possible_moves_pawn(c, p);
-    
+
     return NULL;
 }
 
@@ -355,14 +355,14 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
 {
     struct coordinate *moves;
     int i;
-    
+
     /* check from and to */
     if (from.x < 0 || from.x > 7 || from.y < 0 || from.y > 7
         || to.x < 0 || to.x > 7 || to.y < 0 || to.y > 7) {
         fprintf(stderr, "invalid coordinates\n");
         return 0;
     }
-    
+
     /* check if there is a chess piece */
     if (is_free(c->board[from.y][from.x])) {
         fprintf(stderr, "there is no chess piece on field ");
@@ -370,7 +370,7 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
         fprintf(stderr, "\n");
         return 0;
     }
-    
+
     /* check color */
     if (color == WHITE && is_black(c->board[from.y][from.x])) {
         fprintf(stderr, "the chess piece on field ");
@@ -378,7 +378,7 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
         fprintf(stderr, " is not yours\n");
         return 0;
     }
-    
+
     /* check 'to' field */
     if (!is_free(c->board[to.y][to.x])) {
         if ((color == WHITE && is_white(c->board[to.y][to.x]))
@@ -389,9 +389,9 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
             return 0;
         }
     }
-    
+
     moves = get_possible_moves(c, from);
-    
+
     if (moves == NULL) {
         fprintf(stderr, "you cannot move the chess piece on field ");
         print_coordinate(from, stderr);
@@ -416,9 +416,9 @@ static char is_valid_move(struct chessboard *c, struct coordinate from, struct c
             return 1;
         }
     }
-    
+
     free(moves);
-    
+
     fprintf(stderr, "you cannot move the chess piece on field ");
     print_coordinate(from, stderr);
     fprintf(stderr, " to ");
@@ -431,10 +431,10 @@ static void do_move_ai()
 {
     /*
     struct coordinate from, to;
-    
+
     get_good_move(c, &from, &to);
     be careful: is_valid_move(c, from, to, !!! BLACK !!!);
-    
+
     do_move(c, from, to);
     */
 }
@@ -458,7 +458,6 @@ static void print_help()
            "~ enter coordinates to move a chess piece (e.g. 'b1 c3')\n"
            "~ enter 'q' to exit the game\n"
            "\n");
-    
 }
 
 void play_chess()
@@ -493,7 +492,7 @@ void play_chess()
             from = to_coordinate(input1);
             to   = to_coordinate(input2);
         } while(!is_valid_move(c, from, to, current_player));
-        
+
         do_move(c, from, to);
         do_move_ai(c);
     } while (!is_checkmate(c));
