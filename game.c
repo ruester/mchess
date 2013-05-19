@@ -452,7 +452,7 @@ static char is_checkmate(struct chessboard *c)
 static void print_help()
 {
     printf("***************\n"
-           "* mChess v0.1 *\n"
+           "* mchess v0.1 *\n"
            "***************\n"
            "\n"
            "~ enter coordinates to move a chess piece (e.g. 'b1 c3')\n"
